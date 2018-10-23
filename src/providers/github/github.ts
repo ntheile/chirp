@@ -24,4 +24,9 @@ export class GithubProvider {
     let resp = this.http.post(this.api + 'issue', body).toPromise();
   }
 
+  async getIssues(){
+    let resp = this.http.get(this.api + 'issue').toPromise();
+    return resp;
+  }
+
 }

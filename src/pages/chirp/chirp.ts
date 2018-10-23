@@ -167,7 +167,7 @@ export class ChirpPage {
       onReceived: data => {
         if (data.length > 0) {
           var d = String.fromCharCode.apply(null, data);
-          var msg = new SpeechSynthesisUtterance('Hey alexa, hello');
+          var msg = new SpeechSynthesisUtterance('Hey alexa, say hello ' + d);
           window.speechSynthesis.speak(msg);
           console.log(data);
           window.graph.addNode(d);

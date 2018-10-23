@@ -1,0 +1,13 @@
+page-chirp {
+    .bal{
+        font-size: 72px;
+        font-weight: 900;
+        color: color($colors, primary, base);
+    }
+
+    ion-footer {
+        &.footer-md::before {
+            background-image: none;
+        }
+    }
+}

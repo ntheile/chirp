@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Ionic App</title>
+  <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-tap-highlight" content="no">
+
+  <link rel="icon" type="image/x-icon" href="assets/icon/favicon.ico">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4e8ef7">
+
+  <!-- add to homescreen for ios -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <!-- cordova.js required for cordova apps (remove if not needed) -->
+  <script src="cordova.js"></script>
+
+  <!-- un-comment this code to enable service worker
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log('service worker installed'))
+        .catch(err => console.error('Error', err));
+    }
+  </script>-->
+
+  <link href="build/main.css" rel="stylesheet">
+
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <script src="./assets/encoding-indexes.js"></script>
+  <script src="./assets/encoding.js"></script>
+  <script src="https://rdf-ext.bergnet.org/dist/rdf-ext-all-1.0.0.src.js"></script>
+  <script src="https://public.chirp.io/wasm/latest/chirp-connect.js"></script>
+
+
+
+  <script>
+    const example = {
+      "@context": "https://schema.org",
+      "@type": "DigitalDocument",
+      "@id": "https://gaia.blockstack.org/hub/1FqX63G6pZ54wD97FbW1XvtXEmwgYLEsha/aba3baaa-008d-8cdc-08c9-b20621176add.pdf",
+      "url": "https://gaia.blockstack.org/hub/1FqX63G6pZ54wD97FbW1XvtXEmwgYLEsha/aba3baaa-008d-8cdc-08c9-b20621176add.pdf",
+      "name": "MyFile.pdf",
+      "signature": {
+        "type": "EcdsaKoblitzSignature2016",
+        "created": "2018-10-19T18:01:39Z",
+        "creator": "ecdsa-koblitz-pubkey:020d79074ef137d4f338c2e6bef2a49c618109eccf1cd01ccc3286634789baef4b",
+        "signatureValue": "H1gaYaaUS6tktjCcyzFC6MTZp5MwpSj/Fxt1kF/jv3xTbjL7E+//mYN55WGpT1Q5ZuJh8ccaLRXR9zJXq/PzVKM="
+      }
+    }
+
+    // create JSON-LD parser instance
+    const parser = new JsonLdParser({ factory: rdf })
+    // forward the JSON-LD example string to the parser
+    const quadStream = parser.import(stringToStream(JSON.stringify(example)))
+    console.log(quadStream);
+    // create a new dataset and import the quad stream into it (reverse pipe) with Promise API
+    rdf.dataset().import(quadStream).then((dataset) => {
+      console.log(dataset);
+      // loop over all quads an write them to the console
+      dataset.forEach((quad) => {
+        console.log(quad.toString())
+      })
+    })
+  </script>
+
+</head>
+
+<body>
+
+  <!-- Ionic's root component and where the app will load -->
+  <ion-app></ion-app>
+
+  <!-- The polyfills js is generated during the build process -->
+  <script src="build/polyfills.js"></script>
+
+  <!-- The vendor js is generated during the build process
+       It contains all of the dependencies in node_modules -->
+  <script src="build/vendor.js"></script>
+
+  <!-- The main bundle js is generated during the build process -->
+  <script src="build/main.js"></script>
+
+</body>
+
+</html>

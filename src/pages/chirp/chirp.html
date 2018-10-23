@@ -1,0 +1,53 @@
+<ion-header>
+
+  <ion-navbar color="dark">
+    <ion-title>
+      <img alt="Chirp" height="40" src="assets/img/cbp.jpeg" />
+    </ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  <div class="centerMe">
+    <h1>Chirp</h1>
+    <div class="bal centerMe"><span id="attendCnt"></span>  attendees</div>
+    <!-- <p *ngIf="account">{{ account.address }} - {{ eth }} ETH</p>
+    <canvas id="qr"></canvas> -->
+
+    <ion-item>
+      <ion-label color="primary" floating>Enter your name</ion-label>
+      <ion-input [(ngModel)]="name"></ion-input>
+    </ion-item>
+  <br/>
+    <button ion-button icon-end color="primary" round (click)="sendAttendanceGossip()">
+      Send
+      <ion-icon name="md-send"></ion-icon>
+    </button>
+
+    <h3>Attendace List</h3>
+    <ion-list inset *ngFor="let attendee of attendeeList;">
+        <ion-item >
+            <h1>{{ attendee.name }}</h1>
+            <h2>{{ attendee.publicAddress }}</h2>
+            <p> {{ attendee.time }}</p>
+        </ion-item>
+    </ion-list>
+   
+   
+   
+  <div id="svgdiv"></div>
+
+  </div>
+
+
+</ion-content>
+
+<ion-footer style="border: 0px solid">
+  <ion-toolbar transparent style="border: 0px solid">
+    <div class="centerMe">
+     
+    </div>
+  </ion-toolbar>
+</ion-footer>

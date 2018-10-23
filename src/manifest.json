@@ -1,0 +1,13 @@
+{
+  "name": "Chirp",
+  "short_name": "chirp",
+  "start_url": "index.html",
+  "display": "standalone",
+  "icons": [{
+    "src": "assets/imgs/cbp.jpeg",
+    "sizes": "512x512",
+    "type": "image/jpeg"
+  }],
+  "background_color": "#4e8ef7",
+  "theme_color": "#4e8ef7"
+}

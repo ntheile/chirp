@@ -1,0 +1,7 @@
+{
+  "name": "chirp",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "ionic-angular"
+}

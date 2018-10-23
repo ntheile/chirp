@@ -181,9 +181,10 @@ export class ChirpPage {
     var graph;
     
     function myGraph(id) {
-  
-
-      var self = this;
+        var width = 960;
+        var height = 450;
+        var radius = 12;
+        var self = this;
 
         // Add and remove elements on the graph object
         this.addNode = function (id) {
@@ -197,7 +198,7 @@ export class ChirpPage {
   
         this.removeNode = function (id) {
             var i = 0;
-            var n = findNode(id);
+            var n = findNode(id); // loop through to find id
             while (i < links.length) {
                 if ((links[i]['source'] == n) || (links[i]['target'] == n)) {
                     links.splice(i, 1);
@@ -250,18 +251,15 @@ export class ChirpPage {
         };
   
         // set up the D3 visualisation in the specified element
-        var w = 960,
-                h = 450;
-  
         var color = d3.scale.category10();
 
         var vis = d3.select("#svgdiv")
                 .append("svg:svg")
-                .attr("width", w)
-                .attr("height", h)
+                .attr("width", width)
+                .attr("height", height)
                 .attr("id", "svg")
                 .attr("pointer-events", "all")
-                .attr("viewBox", "0 0 " + w + " " + h)
+                .attr("viewBox", "0 0 " + width + " " + height)
                 .attr("perserveAspectRatio", "xMinYMid")
                 .append('svg:g');
   
@@ -271,6 +269,7 @@ export class ChirpPage {
                 links = force.links();
   
         var update = function () {
+
             var link = vis.selectAll("line")
                     .data(links, function (d) {
                         return d.source.id + "-" + d.target.id;
@@ -301,7 +300,7 @@ export class ChirpPage {
                     .call(force.drag);
   
             nodeEnter.append("svg:circle")
-                    .attr("r", 12)
+                    .attr("r", radius)
                     .attr("id", function (d) {
                         return "Node;" + d.id;
                     })
@@ -321,21 +320,30 @@ export class ChirpPage {
             force.on("tick", function () {
   
                 node.attr("transform", function (d) {
+                    d.x = Math.max(radius, Math.min(width - radius, d.x));
+                    d.y = Math.max(radius, Math.min(height - radius, d.y));
                     return "translate(" + d.x + "," + d.y + ")";
                 });
+
+                // node.attr("cx", function(d) {
+                //     return d.x = Math.max(radius, Math.min(width - radius, d.x));
+                // })
+                //     .attr("cy", function(d) {
+                //         return d.y = Math.max(radius, Math.min(height - radius, d.y));
+                //     })
   
                 link.attr("x1", function (d) {
                     return d.source.x;
                 })
-                        .attr("y1", function (d) {
-                            return d.source.y;
-                        })
-                        .attr("x2", function (d) {
-                            return d.target.x;
-                        })
-                        .attr("y2", function (d) {
-                            return d.target.y;
-                        });
+                    .attr("y1", function (d) {
+                        return d.source.y;
+                    })
+                    .attr("x2", function (d) {
+                        return d.target.x;
+                    })
+                    .attr("y2", function (d) {
+                        return d.target.y;
+                    });
             });
   
             // Restart the force layout.
@@ -344,7 +352,7 @@ export class ChirpPage {
                     .charge(-80000)
                     .friction(0)
                     .linkDistance( function(d) { return d.value * 10 } )
-                    .size([w, h])
+                    .size([width, height])
                     .start();
             try{
               $("#attendCnt").html(window.graph.countNodes());
@@ -362,12 +370,7 @@ export class ChirpPage {
     var self = this;
 
     function drawGraph() {
-  
-    
-
         graph = new myGraph("#svgdiv");
-  
-  
         graph.addNode('Sophia');
         graph.addNode('Daniel');
         graph.addNode('Ryan');

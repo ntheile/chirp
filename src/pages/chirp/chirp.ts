@@ -26,6 +26,8 @@ export class ChirpPage {
   public attendeeList = [] as Array<Attendee>;
   graph;
   myGraph;
+  showCount = false;
+  eventName = "";
 
   constructor(
     public navCtrl: NavController,
@@ -45,12 +47,10 @@ export class ChirpPage {
     window.attendees = 0;
   }
 
-  ionViewDidLoad() {
-
-    this.toast('Listening for nearby attendees...');
-    this.setupNearby();
-    this.chirp();
-  }
+//   ionViewDidLoad() {
+//     this.setupNearby();
+//     this.chirp();
+//   }
 
 
   async submitAttendanceListToBlockChain() {
@@ -85,6 +85,7 @@ export class ChirpPage {
   }
 
   setupNearby() {
+    this.toast('Listening for nearby attendees...');
     if (this.platform.is('cordova')) {
       // Get Data
       this.nearbySub = this.googleNearby.subscribe().subscribe(result => {
@@ -155,9 +156,9 @@ export class ChirpPage {
   chirp() {
 
     const { Chirp } = ChirpConnectSDK;
-    setTimeout( ()=>{
-      this.setupD3();
-    }, 300 );
+    // setTimeout( ()=>{
+    //   this.setupD3();
+    // }, 300 );
     var myName = "Nick";
     Chirp({
       key: 'B8dB7210eC0fFEB3FC7A8cD8E',
@@ -183,26 +184,41 @@ export class ChirpPage {
 
 
   setupD3() {
-    var graph;
-    
-    function myGraph(id) {
-  
+    //this.setupNearby();
+    this.showCount = true;
 
-      var self = this;
+    $("#attendCnt").html("0 attendees");
+
+    var graph;
+
+    function myGraph(id) {
+        var width = screen.width;
+        var height = screen.height * 0.4;
+        var radius = 12;
+        var minPath = 20;
+        var self = this;
 
         // Add and remove elements on the graph object
         this.addNode = function (id) {
             nodes.push({"id": id});
             update();
+            this.attendeeCount += 1;
         };
+
+        this.addNodeToRoot = function(id) {
+            nodes.push({"id": id});
+            links.push({"source": findNode(id), "target": nodes[0], "value": (minPath + Math.random()*20).toString()});
+            update();
+            keepNodesOnTop();
+        }
 
         this.countNodes = function() {
           return $( $(d3.select("svg")[0][0]).children('g')[0] ).children('g').length;
         }
-  
+
         this.removeNode = function (id) {
             var i = 0;
-            var n = findNode(id);
+            var n = findNode(id); // loop through to find id
             while (i < links.length) {
                 if ((links[i]['source'] == n) || (links[i]['target'] == n)) {
                     links.splice(i, 1);
@@ -212,7 +228,7 @@ export class ChirpPage {
             nodes.splice(findNodeIndex(id), 1);
             update();
         };
-  
+
         this.removeLink = function (source, target) {
             for (var i = 0; i < links.length; i++) {
                 if (links[i].source.id == source && links[i].target.id == target) {
@@ -222,29 +238,29 @@ export class ChirpPage {
             }
             update();
         };
-  
+
         this.removeallLinks = function () {
             links.splice(0, links.length);
             update();
         };
-  
+
         this.removeAllNodes = function () {
             nodes.splice(0, links.length);
             update();
         };
-  
+
         this.addLink = function (source, target, value) {
             links.push({"source": findNode(source), "target": findNode(target), "value": value});
             update();
+            keepNodesOnTop();
         };
-  
+
         var findNode = function (id) {
             for (var i in nodes) {
                 if (nodes[i]["id"] === id) return nodes[i];
-            }
-            ;
+            };
         };
-  
+
         var findNodeIndex = function (id) {
             for (var i = 0; i < nodes.length; i++) {
                 if (nodes[i].id == id) {
@@ -253,34 +269,32 @@ export class ChirpPage {
             }
             ;
         };
-  
+
         // set up the D3 visualisation in the specified element
-        var w = 960,
-                h = 450;
-  
         var color = d3.scale.category10();
 
         var vis = d3.select("#svgdiv")
                 .append("svg:svg")
-                .attr("width", w)
-                .attr("height", h)
+                .attr("width", width)
+                .attr("height", height)
                 .attr("id", "svg")
                 .attr("pointer-events", "all")
-                .attr("viewBox", "0 0 " + w + " " + h)
+                .attr("viewBox", "0 0 " + width + " " + height)
                 .attr("perserveAspectRatio", "xMinYMid")
                 .append('svg:g');
-  
+
         var force = d3.layout.force();
-  
+
         var nodes = force.nodes(),
                 links = force.links();
-  
+
         var update = function () {
+
             var link = vis.selectAll("line")
                     .data(links, function (d) {
                         return d.source.id + "-" + d.target.id;
                     });
-  
+
             link.enter().append("line")
                     .attr("id", function (d) {
                         return d.source.id + "-" + d.target.id;
@@ -295,24 +309,24 @@ export class ChirpPage {
                         return d.value;
                     });
             link.exit().remove();
-  
+
             var node = vis.selectAll("g.node")
                     .data(nodes, function (d) {
                         return d.id;
                     });
-  
+
             var nodeEnter = node.enter().append("g")
                     .attr("class", "node")
                     .call(force.drag);
-  
+
             nodeEnter.append("svg:circle")
-                    .attr("r", 12)
+                    .attr("r", radius)
                     .attr("id", function (d) {
                         return "Node;" + d.id;
                     })
                     .attr("class", "nodeStrokeClass")
                     .attr("fill", function(d) { return color(d.id); });
-  
+
             nodeEnter.append("svg:text")
                     .attr("class", "textClass")
                     .attr("x", 14)
@@ -320,133 +334,76 @@ export class ChirpPage {
                     .text(function (d) {
                         return d.id;
                     });
-  
+
             node.exit().remove();
-  
+
             force.on("tick", function () {
-  
+
                 node.attr("transform", function (d) {
+                    d.x = Math.max(radius, Math.min(width - radius, d.x));
+                    d.y = Math.max(radius, Math.min(height - radius, d.y));
                     return "translate(" + d.x + "," + d.y + ")";
                 });
-  
+
                 link.attr("x1", function (d) {
                     return d.source.x;
                 })
-                        .attr("y1", function (d) {
-                            return d.source.y;
-                        })
-                        .attr("x2", function (d) {
-                            return d.target.x;
-                        })
-                        .attr("y2", function (d) {
-                            return d.target.y;
-                        });
+                    .attr("y1", function (d) {
+                        return d.source.y;
+                    })
+                    .attr("x2", function (d) {
+                        return d.target.x;
+                    })
+                    .attr("y2", function (d) {
+                        return d.target.y;
+                    });
             });
-  
+
             // Restart the force layout.
             force
                     .gravity(.01)
                     .charge(-80000)
                     .friction(0)
                     .linkDistance( function(d) { return d.value * 10 } )
-                    .size([w, h])
+                    .size([width, height])
                     .start();
             try{
-              $("#attendCnt").html(window.graph.countNodes());
+              $("#attendCnt").html(window.graph.countNodes() + " attendees");
             }
             catch(e){}
-            
-                    
+
+
         };
-  
-  
+
+
         // Make it all go
         update();
     }
-  
+
     var self = this;
 
-    function drawGraph() {
-  
-    
-
+    function drawGraph(root: string) {
+        var minPath = 20;
         graph = new myGraph("#svgdiv");
-  
-  
+        graph.addNode(root);
         graph.addNode('Sophia');
         graph.addNode('Daniel');
         graph.addNode('Ryan');
-        graph.addNode('Lila');
-        graph.addNode('Suzie');
-        graph.addNode('Riley');
-        graph.addNode('Grace');
-        graph.addNode('Dylan');
-        graph.addNode('Mason');
-        graph.addNode('Emma');
-        graph.addNode('Alex');
-        graph.addLink('Alex', 'Ryan', '20');
-        graph.addLink('Sophia', 'Ryan', '20');
-        graph.addLink('Daniel', 'Ryan', '20');
-        graph.addLink('Ryan', 'Lila', '30');
-        graph.addLink('Lila', 'Suzie', '20');
-        graph.addLink('Suzie', 'Riley', '10');
-        graph.addLink('Suzie', 'Grace', '30');
-        graph.addLink('Grace', 'Dylan', '10');
-        graph.addLink('Dylan', 'Mason', '20');
-        graph.addLink('Dylan', 'Emma', '20');
-        graph.addLink('Emma', 'Mason', '10');
-        keepNodesOnTop();
-  
-        // callback for the changes in the network
-        var step = -1;
-        function nextval()
-        {
-            step++;
-            return 2000 + (1500*step); // initial time, wait time
-        }
-  
-        setTimeout(function() {
-            graph.addLink('Alex', 'Sophia', '20');
-            keepNodesOnTop();
-        }, nextval());
-  
-        setTimeout(function() {
-            graph.addLink('Sophia', 'Daniel', '20');
-            keepNodesOnTop();
-        }, nextval());
-  
-        setTimeout(function() {
-            graph.addLink('Daniel', 'Alex', '20');
-            keepNodesOnTop();
-        }, nextval());
-  
-        setTimeout(function() {
-            graph.addLink('Suzie', 'Daniel', '30');
-            keepNodesOnTop();
-        }, nextval());
-  
-        setTimeout(function() {
-            graph.removeLink('Dylan', 'Mason');
-            graph.addLink('Dylan', 'Mason', '8');
-            keepNodesOnTop();
-        }, nextval());
-  
-        setTimeout(function() {
-            graph.removeLink('Dylan', 'Emma');
-            graph.addLink('Dylan', 'Emma', '8');
-            keepNodesOnTop();
-        }, nextval());
-       
+        graph.addLink(root,'Sophia',(minPath + Math.random()*20).toString());
+        graph.addLink(root,'Daniel',(minPath + Math.random()*20).toString());
+        graph.addLink(root,'Ryan',(minPath + Math.random()*20).toString());
+      
+        keepNodesOnTop();      
+
         window.graph = graph;
-       
-        $("#attendCnt").html(graph.countNodes());
-       
-        
-  
+
+        $("#attendCnt").html(graph.countNodes() + " attendees");
     }
-  
-    drawGraph();
-  
+
+    drawGraph(this.eventName);
+
+    this.attendeeCount = graph.countNodes();
+
     // because of the way the network is created, nodes are created first, and links second,
     // so the lines were on top of the nodes, this just reorders the DOM to put the svg:g on top
     function keepNodesOnTop() {
@@ -459,10 +416,10 @@ export class ChirpPage {
     function addNodes() {
         d3.select("svg")
                 .remove();
-              
-         drawGraph();
+
+         drawGraph(this.eventName);
     }
-  
+
 
   }
 

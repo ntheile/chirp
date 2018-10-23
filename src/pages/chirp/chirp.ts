@@ -28,6 +28,7 @@ export class ChirpPage {
   myGraph;
   showCount = false;
   eventName = "";
+  startDate = 0;
 
   constructor(
     public navCtrl: NavController,
@@ -171,7 +172,8 @@ export class ChirpPage {
           var msg = new SpeechSynthesisUtterance('Hey alexa, hello');
           window.speechSynthesis.speak(msg);
           console.log(data);
-          window.graph.addNode(d);
+          var dateCreated = new Date().getTime();
+          window.graph.addNode(d, dateCreated - this.startDate);
           this.github.postIssue('DowHackathon2018', d);
           // this.drawGraph();
         }
@@ -186,7 +188,10 @@ export class ChirpPage {
   setupD3() {
     //this.setupNearby();
     this.showCount = true;
+    this.startDate = new Date().getTime();
 
+    d3.select("#svgdiv").selectAll('*').remove();
+    
     $("#attendCnt").html("0 attendees");
 
     var graph;
@@ -205,9 +210,9 @@ export class ChirpPage {
             this.attendeeCount += 1;
         };
 
-        this.addNodeToRoot = function(id) {
+        this.addNodeToRoot = function(id, time) {
             nodes.push({"id": id});
-            links.push({"source": findNode(id), "target": nodes[0], "value": (minPath + Math.random()*20).toString()});
+            links.push({"source": findNode(id), "target": nodes[0], "value": 12 + time * 0.0001});
             update();
             keepNodesOnTop();
         }
@@ -382,16 +387,13 @@ export class ChirpPage {
 
     var self = this;
 
-    function drawGraph(root: string) {
+    function drawGraph(root: string, startDate: number) {
         var minPath = 20;
         graph = new myGraph("#svgdiv");
         graph.addNode(root);
-        graph.addNode('Sophia');
-        graph.addNode('Daniel');
-        graph.addNode('Ryan');
-        graph.addLink(root,'Sophia',(minPath + Math.random()*20).toString());
-        graph.addLink(root,'Daniel',(minPath + Math.random()*20).toString());
-        graph.addLink(root,'Ryan',(minPath + Math.random()*20).toString());
+        graph.addNodeToRoot('Sophia', new Date().getTime() - startDate);
+        graph.addNodeToRoot('Daniel',new Date().getTime() - startDate);
+        graph.addNodeToRoot('Ryan',new Date().getTime() - startDate);
       
         keepNodesOnTop();      
 
@@ -400,7 +402,7 @@ export class ChirpPage {
         $("#attendCnt").html(graph.countNodes() + " attendees");
     }
 
-    drawGraph(this.eventName);
+    drawGraph(this.eventName, this.startDate);
 
     this.attendeeCount = graph.countNodes();
 
@@ -417,7 +419,7 @@ export class ChirpPage {
         d3.select("svg")
                 .remove();
 
-         drawGraph(this.eventName);
+         drawGraph(this.eventName, this.startDate);
     }
 
 

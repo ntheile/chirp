@@ -5,6 +5,7 @@ import { ToastController } from 'ionic-angular';
 import * as moment from 'moment';
 import { Attendee } from './../../models/attendee';
 import 'rxjs/add/operator/toPromise';
+import { GithubProvider } from './../../providers/github/github';
 declare let ChirpConnectSDK: any;
 declare let d3: any;
 declare let $: any;
@@ -31,7 +32,8 @@ export class ChirpPage {
     public navParams: NavParams,
     public googleNearby: GoogleNearby,
     public platform: Platform,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    private github : GithubProvider,
   ) {
     this.registerNearbyLifecycle();
     //let a = {} as Attendee;
@@ -164,9 +166,12 @@ export class ChirpPage {
       },
       onReceived: data => {
         if (data.length > 0) {
-          var d = String.fromCharCode.apply(null, data)
+          var d = String.fromCharCode.apply(null, data);
+          var msg = new SpeechSynthesisUtterance('Hey alexa, hello');
+          window.speechSynthesis.speak(msg);
           console.log(data);
           window.graph.addNode(d);
+          this.github.postIssue('DowHackathon2018', d);
           // this.drawGraph();
         }
       }

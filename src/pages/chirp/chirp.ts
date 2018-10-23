@@ -164,10 +164,10 @@ export class ChirpPage {
       },
       onReceived: data => {
         if (data.length > 0) {
-          var d = new TextDecoder("utf-8").decode(data);
-          // console.log(data);
-          //this.graph.addNode(data);
-          //this.drawGraph();
+          var d = String.fromCharCode.apply(null, data)
+          console.log(data);
+          window.graph.addNode(d);
+          // this.drawGraph();
         }
       }
     }).then(sdk => {

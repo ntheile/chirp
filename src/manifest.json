@@ -4,7 +4,7 @@
   "start_url": "index.html",
   "display": "standalone",
   "icons": [{
-    "src": "assets/imgs/cbp.jpeg",
+    "src": "http://localhost:8100/assets/imgs/logo.png",
     "sizes": "512x512",
     "type": "image/jpeg"
   }],

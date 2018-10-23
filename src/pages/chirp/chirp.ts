@@ -1,7 +1,5 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams, Platform } from 'ionic-angular';
-import Web3 from 'web3';
-import qrcode from 'qrcode';
 import { GoogleNearby } from '@ionic-native/google-nearby';
 import { ToastController } from 'ionic-angular';
 import * as moment from 'moment';
